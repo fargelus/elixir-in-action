@@ -12,13 +12,9 @@ defmodule ListModule do
 
   def range(from, from), do: [from]
 
-  def range(from, to) do
-    if from > to do
-      [from] ++ range(from - 1, to)
-    else
-      [from] ++ range(from + 1, to)
-    end
-  end
+  def range(from, to) when from > to, do: [from | range(from - 1, to)]
+
+  def range(from, to) when from < to, do: [from | range(from + 1, to)]
 end
 
 defmodule ListModuleTest do
@@ -52,7 +48,8 @@ defmodule ListModuleTest do
 
     ListModule.range(1, 3) |> IO.inspect # [1, 2, 3]
     ListModule.range(10, 1) |> IO.inspect # [10, 9, 8...]
-    ListModule.range(1, 1000) |> IO.inspect # [1, 2, 3...]
+    ListModule.range(1, 100) |> IO.inspect(limit: :infinity) # [1, 2, 3...]
+    ListModule.range(1000000, 1) |> IO.inspect(limit: :infinity) # [1, 2, 3...]
 
     IO.puts "*** End of tests for range/1 fun ***"
   end
