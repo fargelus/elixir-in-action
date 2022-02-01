@@ -5,7 +5,7 @@ defmodule ListModule do
 
   defp make_rec_len([], size), do: size
 
-  defp make_rec_len([head | tail], size) do
+  defp make_rec_len([_ | tail], size) do
     make_rec_len(tail, size + 1)
   end
 end
@@ -25,7 +25,7 @@ defmodule ListModuleTest do
       |> IO.puts # 6
 
     Enum.to_list(1..100000000) |> ListModule.rec_len |> IO.puts
-    IO.puts "*** End of tests for len/1 func ***"
+    IO.puts "*** End of tests for req_len/1 func ***"
   end
 end
 
