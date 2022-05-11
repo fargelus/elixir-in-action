@@ -4,7 +4,23 @@ defmodule Game do
   @lifeness_ratio 4
 
   def start do
-    seed_universe() |> evolve
+    init_generation = seed_universe()
+    init_generation |> print(0)
+    init_generation |> evolve
+  end
+
+  defp print(generation, gen_count) do
+    IO.puts "Generation: #{gen_count}"
+
+    generation
+    |> Enum.with_index
+    |> Enum.each(fn({cell, index}) ->
+      cell == @alive && IO.write("🦠") || IO.write(" ")
+
+      if index != 1 && rem(index, @rows) == @rows - 1 do
+        IO.puts ""
+      end
+    end)
   end
 
   defp seed_universe do
@@ -15,8 +31,6 @@ defmodule Game do
   end
 
   defp evolve(generation, gen_count \\ 0) do
-    generation |> print(gen_count)
-
     new_generation =
       Enum.with_index(generation)
       |> Enum.map(fn {cell, index} ->
@@ -27,7 +41,14 @@ defmodule Game do
         end
     end)
 
+    Process.sleep(1000)
     new_generation |> print(gen_count + 1)
+
+    if is_over?(generation, new_generation) do
+      System.halt(0)
+    end
+
+    evolve(new_generation, gen_count + 1)
   end
 
   defp count_neighbours(index, generation) do
@@ -76,18 +97,18 @@ defmodule Game do
     ]
   end
 
-  defp print(generation, gen_count) do
-    IO.puts "Generation: #{gen_count}"
+  defp is_over?(prev_gen, next_gen) do
+    is_periodic =
+      Enum.with_index(next_gen)
+      |> Enum.all?(fn {cell, index} ->
+        cell == Enum.at(prev_gen, index)
+      end)
 
-    generation
-    |> Enum.with_index
-    |> Enum.each(fn({cell, index}) ->
-      cell == @alive && IO.write("🦠") || IO.write(" ")
-
-      if index != 1 && rem(index, @rows) == @rows - 1 do
-        IO.puts ""
-      end
-    end)
+    if is_periodic do
+      true
+    else
+      Enum.all?(next_gen, fn cell -> cell != @alive end)
+    end
   end
 end
 
